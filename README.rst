@@ -3,17 +3,22 @@ MeToken Scipion plugin
 ================================
 
 Scipion framework plugin wrapping MeToken (ICLR 2025 (OpenReview)) --
-corroboracion informativa del TIPO de PTM (Camino PDB) -- nunca decide pasa_umbral/consenso, solo compara contra el tipo ya consensuado en Fase 3.
+informative corroboration of PTM TYPE (PDB path) -- never decides
+threshold-passing/consensus, only compares against the type already
+agreed on in Phase 3.
 
-``ProtMeTokenCorroboration`` corrobora el tipo de sitios PTM ya aceptados
-con un runner vendorizado (identico al ya validado end-to-end en el
-pipeline standalone).
+``ProtMeTokenCorroboration`` corroborates the type of already-accepted PTM
+sites with a vendorized runner (identical to the one already validated
+end-to-end in the standalone pipeline).
 
-Repo original: https://github.com/A4Bio/MeToken
+Original repo: https://github.com/A4Bio/MeToken
 
-Cita: ICLR 2025 (OpenReview)
+Citation: ICLR 2025 (OpenReview)
 
-**Licencia de MeToken (upstream)**: MIT, declarada en el LICENSE del repo original -- el copyright del archivo nombra a un tercero ajeno a los autores ('Corleone-Huang, 2023'), probablemente copiado de otra plantilla, pero el termino de la licencia (MIT) es permisivo de todas formas.
+**MeToken license (upstream)**: MIT, declared in the original repo's
+LICENSE -- the file's copyright names a third party unrelated to the
+authors ('Corleone-Huang, 2023'), likely copied from another template, but
+the license term (MIT) is permissive regardless.
 
 ===================
 Install this plugin
@@ -28,10 +33,10 @@ Install this plugin
             scipion3 installp -p . --devel
             scipion3 installb MeToken
 
-El repo, el entorno conda (torch CPU-only + ``torch_scatter`` compilado
-desde fuente) y el checkpoint (release real de GitHub, descarga automatica)
-se instalan solos -- a diferencia de DeepMVP/EMNGly, no hay ningun paso
-manual.
+The repo, the conda environment (CPU-only torch + ``torch_scatter``
+compiled from source) and the checkpoint (a real GitHub release,
+automatic download) install on their own -- unlike DeepMVP/EMNGly, there
+is no manual step.
 
 .. code-block::
 

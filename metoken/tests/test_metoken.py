@@ -32,8 +32,8 @@ from pyworkflow.tests import BaseTest, setupTestProject
 
 from ..protocols import ProtMeTokenCorroboration
 
-# Mismo fixture real que scipion-chem-discotope/-deepptmpred/-emngly (7c4s,
-# gotcha mmCIF label_asym_id 'C' == author chain 'A').
+# Same real fixture as scipion-chem-discotope/-deepptmpred/-emngly (7c4s,
+# mmCIF label_asym_id 'C' == author chain 'A' gotcha).
 _TEST_PDB_ID = '7c4s'
 _TEST_CHAIN = 'C'
 
@@ -79,11 +79,11 @@ class TestMeTokenCorroboration(BaseTest):
         cls.protAnnotated = protDefSeqROIs
 
     def test(self):
-        # chainId=_TEST_CHAIN ('C'), NO el default 'A': ProtChemPrepareReceptor
-        # filtra por el label_asym_id ('C', ver _TEST_CHAIN arriba) pero el PDB de
-        # salida CONSERVA esa misma letra 'C' como su chain ID real (no la
-        # renombra al author chain 'A') -- pedir chain_id='A' a MeToken
-        # devolveria 0 residuos.
+        # chainId=_TEST_CHAIN ('C'), NOT the default 'A': ProtChemPrepareReceptor
+        # filters by label_asym_id ('C', see _TEST_CHAIN above) but the
+        # output PDB KEEPS that same letter 'C' as its real chain ID (it
+        # does not rename it to the author chain 'A') -- requesting
+        # chain_id='A' from MeToken would return 0 residues.
         protMeToken = self.newProtocol(ProtMeTokenCorroboration, chainId=_TEST_CHAIN)
         protMeToken.inputROIs.set(self.protAnnotated)
         protMeToken.inputROIs.setExtended('outputROIs')
@@ -96,7 +96,7 @@ class TestMeTokenCorroboration(BaseTest):
         self.assertEqual(len(outROIs), 1)
 
         roi = list(outROIs)[0].clone()
-        # Con MeToken instalado y el checkpoint descargado: tipo y
-        # probabilidad reales, no None.
+        # With MeToken installed and the checkpoint downloaded: real type
+        # and probability, not None.
         self.assertIsNotNone(roi._metokenType.get())
         self.assertIsNotNone(roi._metokenProbability.get())

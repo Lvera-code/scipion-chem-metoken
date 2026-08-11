@@ -4,20 +4,20 @@ CHANGES
 
 0.2.0
 =====
-- Protocolo real (``ProtMeTokenCorroboration``): corrobora tipo de sitios
-  PTM ya aceptados (``_metokenType``/``_metokenProbability``/
-  ``_metokenTypeMatches``, mapeo tipo canonico->MeToken vendorizado desde
-  ptm_annotation.py). Runner (parches Biopython three_to_one + device='cuda'
-  hardcodeado) vendorizado byte-a-byte. Instalacion automatica completa
-  (repo+entorno conda con torch_scatter compilado+checkpoint via release de
-  GitHub) -- unico de los 3 motores estructurales de este proyecto sin
-  ningun paso manual. Test real sobre 7c4s (mismo fixture que
-  scipion-chem-discotope/-deepptmpred/-emngly).
+- Real protocol (``ProtMeTokenCorroboration``): corroborates the type of
+  already-accepted PTM sites (``_metokenType``/``_metokenProbability``/
+  ``_metokenTypeMatches``, canonical-type->MeToken mapping vendorized from
+  ptm_annotation.py). Runner (Biopython three_to_one patches + hardcoded
+  device='cuda') vendorized byte-for-byte. Fully automatic installation
+  (repo + conda environment with torch_scatter compiled from source +
+  checkpoint via a GitHub release) -- the only one of this project's 3
+  structural engines with no manual step. Real test on 7c4s (same fixture
+  as scipion-chem-discotope/-deepptmpred/-emngly).
 
 0.1.0
 =====
-- Scaffolding inicial: estructura de plugin de Scipion generada siguiendo el
-  mismo patron que los plugins de BCell-Epitope-Prediction (un plugin por
-  herramienta). Sin logica de instalacion ni de protocolo todavia -- pendiente
-  de la validacion end-to-end del pipeline en Colab, ver STATUS.md del
-  proyecto ``PTM-Prediction``.
+- Initial scaffolding: Scipion plugin structure generated following the
+  same pattern as the BCell-Epitope-Prediction plugins (one plugin per
+  tool). No installation or protocol logic yet -- pending end-to-end
+  validation of the pipeline in Colab, see the ``PTM-Prediction`` project's
+  STATUS.md.

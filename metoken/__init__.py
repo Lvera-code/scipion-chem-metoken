@@ -36,16 +36,16 @@ from pwchem import Plugin as pwchemPlugin
 
 from .constants import CHECKPOINT_FILENAME, CHECKPOINT_ZIP_URL, METOKEN_DIC, NOINSTALL_WARNING, UPSTREAM_URL
 
-_references = []  # MeToken (ICLR 2025, A4Bio/MeToken) sin bibtex propio verificado todavia -- misma politica que scipion-chem-emngly.
+_references = []  # MeToken (ICLR 2025, A4Bio/MeToken) has no verified BibTeX entry yet -- same policy as scipion-chem-emngly.
 
 
 class Plugin(pwchemPlugin):
-    """MeToken (A4Bio/MeToken, MIT) se instala clonando el repo upstream y
-    construyendo un entorno conda dedicado (torch CPU-only + torch_scatter
-    compilado desde fuente -- sin wheel prebuilt para esta combinacion de
-    version, ver STATUS.md del proyecto hermano). El checkpoint SI se
-    descarga automaticamente (release real de GitHub, enlace directo -- a
-    diferencia de DeepMVP/EMNGly)."""
+    """MeToken (A4Bio/MeToken, MIT) is installed by cloning the upstream
+    repo and building a dedicated conda environment (CPU-only torch +
+    torch_scatter compiled from source -- no prebuilt wheel exists for
+    this version combination, see the sibling project's STATUS.md). The
+    checkpoint IS downloaded automatically (a real GitHub release, direct
+    link -- unlike DeepMVP/EMNGly)."""
 
     @classmethod
     def _defineVariables(cls):
@@ -63,16 +63,16 @@ class Plugin(pwchemPlugin):
         installer = InstallHelper(METOKEN_DIC['name'], packageHome=home,
                                   packageVersion=METOKEN_DIC['version'])
 
-        # Clone ANTES del entorno conda (misma regla ya documentada en el
-        # resto de plugins de este proyecto).
+        # Clone BEFORE the conda environment (same rule already documented
+        # across the rest of this project's plugins).
         #
-        # torch CPU-only + purga nvidia/triton (mismo fix real ya aplicado
-        # en scipion-chem-stackglyembed/scipion-chem-emngly). torch_scatter
-        # NO tiene wheel prebuilt para esta combinacion (confirmado en
-        # STATUS.md: el indice de wheels de data.pyg.org solo llega hasta
-        # torch-2.1.0+cpu) -- se compila desde fuente
-        # ('--no-build-isolation', real, unos pocos minutos, no ~15 como se
-        # estimo antes de medirlo).
+        # CPU-only torch + nvidia/triton purge (same real fix already
+        # applied in scipion-chem-stackglyembed/scipion-chem-emngly).
+        # torch_scatter has NO prebuilt wheel for this combination
+        # (confirmed in STATUS.md: data.pyg.org's wheel index only goes up
+        # to torch-2.1.0+cpu) -- compiled from source
+        # ('--no-build-isolation', really a few minutes, not the ~15
+        # estimated before it was actually measured).
         installer.addCommand(
             f"git clone --depth 1 {UPSTREAM_URL} {home}",
             'METOKEN_CLONED'

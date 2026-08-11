@@ -35,21 +35,22 @@ METOKEN_DIC = {
 READ_URL = 'https://github.com/Lvera-code/scipion-chem-metoken'
 UPSTREAM_URL = 'https://github.com/A4Bio/MeToken'
 
-# Confirmado leyendo scripts/metoken_runner.py: el unico manejo de
-# device/CUDA es el parche '_force_cpu_ones' (redirige a CPU si CUDA no
-# esta disponible, siempre) -- sin ningun flag de CLI que exponer.
+# Confirmed by reading scripts/metoken_runner.py: the only device/CUDA
+# handling is the '_force_cpu_ones' patch (always redirects to CPU if CUDA
+# is not available) -- no CLI flag to expose.
 GPU_REQUIRED = False
 
-# Licencia de MeToken (upstream): MIT, declarada en el LICENSE del repo original -- el copyright del archivo nombra a un tercero ajeno a los autores ('Corleone-Huang, 2023'), probablemente copiado de otra plantilla, pero el termino de la licencia (MIT) es permisivo de todas formas.
+# MeToken license (upstream): MIT, declared in the original repo's LICENSE -- the file's copyright names a third party unrelated to the authors ('Corleone-Huang, 2023'), likely copied from another template, but the license term (MIT) is permissive regardless.
 
-# A diferencia de DeepMVP/EMNGly, el checkpoint SI es automatizable: release
-# real de GitHub, enlace de descarga directa (confirmado en
+# Unlike DeepMVP/EMNGly, the checkpoint IS scriptable: a real GitHub
+# release, direct download link (confirmed in
 # PTM-Prediction/src/engines/metoken_engine.py::_validate_installation).
 CHECKPOINT_ZIP_URL = 'https://github.com/A4Bio/MeToken/releases/download/1.0/pretrained_model.zip'
 CHECKPOINT_FILENAME = 'checkpoint.ckpt'
 
 NOINSTALL_WARNING = (
-    "MeToken no esta instalado correctamente. Revisa que el repo se haya clonado (METOKEN_HOME) "
-    'y que el checkpoint se haya descargado (automatico durante la instalacion). Corroboracion '
-    'PURAMENTE INFORMATIVA (nunca decide consenso): su ausencia no bloquea el resto del pipeline.'
+    "MeToken is not installed correctly. Check that the repo has been cloned (METOKEN_HOME) "
+    'and that the checkpoint has been downloaded (automatic during installation). PURELY '
+    'INFORMATIVE corroboration (never decides consensus): its absence does not block the rest '
+    'of the pipeline.'
 )

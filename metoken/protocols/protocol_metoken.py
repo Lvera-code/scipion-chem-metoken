@@ -37,12 +37,12 @@ from pyworkflow.protocol import params
 
 from .. import Plugin as metokenPlugin
 
-# Tipo canonico del pipeline -> etiqueta real de MeToken (vendorizado desde
+# Canonical pipeline type -> real MeToken label (vendorized from
 # PTM-Prediction/src/engines/ptm_annotation.py::CANONICAL_TO_METOKEN_TYPE,
-# verificado leyendo src/constant.py::PTMtype_list del repo real de
-# MeToken). 3 tipos de este proyecto (crotonylation/glutarylation/
-# citrullination) no tienen equivalente en las 24 clases reales de MeToken
-# -- deliberadamente fuera de este dict.
+# verified by reading MeToken's real repo src/constant.py::PTMtype_list). 3
+# types from this project (crotonylation/glutarylation/citrullination) have
+# no equivalent among MeToken's 24 real classes -- deliberately left out of
+# this dict.
 CANONICAL_TO_METOKEN_TYPE = {
     'phosphorylation': 'Phosphorylation',
     'phosphorylation_y': 'Phosphorylation',
@@ -127,10 +127,10 @@ class ProtMeTokenCorroboration(EMProtocol):
             return
 
         pdbPath = os.path.abspath(self.inputStructure.get().getFileName())
-        # Ruta ABSOLUTA por consistencia/defensa (mismo patron que
-        # scipion-chem-deepmvp/-deepptmpred/-emngly -- aqui 'runMeToken' no
-        # sobreescribe cwd, asi que en principio resolveria bien de todas
-        # formas, pero no vale la pena arriesgarlo).
+        # ABSOLUTE path for consistency/defense (same pattern as
+        # scipion-chem-deepmvp/-deepptmpred/-emngly -- here 'runMeToken'
+        # does not override cwd, so it would in principle resolve fine
+        # either way, but it is not worth risking it).
         outCsv = os.path.abspath(self._getExtraPath('metoken_scores.csv'))
         args = (
             f'--repo-dir {metokenPlugin.getMeTokenDir()} --checkpoint-path {metokenPlugin.getCheckpointPath()} '
@@ -139,7 +139,7 @@ class ProtMeTokenCorroboration(EMProtocol):
         )
         try:
             metokenPlugin.runMeToken(self, args)
-        except Exception as exc:  # noqa: BLE001 -- puramente informativo, nunca debe tumbar el protocolo
+        except Exception as exc:  # noqa: BLE001 -- purely informative, must never fail the protocol
             self.warning(f'MeToken failed (non-fatal, degrades to no corroboration): {exc}')
 
     def createOutputStep(self):
@@ -178,8 +178,8 @@ class ProtMeTokenCorroboration(EMProtocol):
     # ---------------------------------- Validation -------------------------------
 
     def _validate(self):
-        # MeToken es OPCIONAL (degrada, ver docstring) -- nunca bloquea el
-        # lanzamiento por su ausencia.
+        # MeToken is OPTIONAL (degrades, see docstring) -- its absence
+        # never blocks launching.
         return []
 
     def _summary(self):
