@@ -79,12 +79,11 @@ class TestMeTokenCorroboration(BaseTest):
         cls.protAnnotated = protDefSeqROIs
 
     def test(self):
-        # chainId=_TEST_CHAIN ('C'), NO el default 'A': bug real de fixture
-        # encontrado 2026-08-11 via 'scipion3 test' real -- ProtChemPrepareReceptor
+        # chainId=_TEST_CHAIN ('C'), NO el default 'A': ProtChemPrepareReceptor
         # filtra por el label_asym_id ('C', ver _TEST_CHAIN arriba) pero el PDB de
         # salida CONSERVA esa misma letra 'C' como su chain ID real (no la
-        # renombra al author chain 'A'), confirmado inspeccionando el PDB de
-        # salida real -- pedir chain_id='A' a MeToken devuelve 0 residuos.
+        # renombra al author chain 'A') -- pedir chain_id='A' a MeToken
+        # devolveria 0 residuos.
         protMeToken = self.newProtocol(ProtMeTokenCorroboration, chainId=_TEST_CHAIN)
         protMeToken.inputROIs.set(self.protAnnotated)
         protMeToken.inputROIs.setExtended('outputROIs')
@@ -97,7 +96,7 @@ class TestMeTokenCorroboration(BaseTest):
         self.assertEqual(len(outROIs), 1)
 
         roi = list(outROIs)[0].clone()
-        # Corrida real (MeToken instalado+checkpoint descargado, verificado
-        # 2026-08-11 via 'scipion3 test' real): tipo/probabilidad reales.
+        # Con MeToken instalado y el checkpoint descargado: tipo y
+        # probabilidad reales, no None.
         self.assertIsNotNone(roi._metokenType.get())
         self.assertIsNotNone(roi._metokenProbability.get())

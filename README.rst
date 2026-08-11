@@ -5,10 +5,9 @@ MeToken Scipion plugin
 Scipion framework plugin wrapping MeToken (ICLR 2025 (OpenReview)) --
 corroboracion informativa del TIPO de PTM (Camino PDB) -- nunca decide pasa_umbral/consenso, solo compara contra el tipo ya consensuado en Fase 3.
 
-**Estado: protocolo real implementado, pendiente de instalacion+test real**
-(ver ``PTM-Prediction/STATUS.md``, entrada 2026-08-11). ``ProtMeTokenCorroboration``
-corrobora el tipo de sitios PTM ya aceptados con un runner vendorizado
-(identico al ya validado end-to-end en el pipeline standalone).
+``ProtMeTokenCorroboration`` corrobora el tipo de sitios PTM ya aceptados
+con un runner vendorizado (identico al ya validado end-to-end en el
+pipeline standalone).
 
 Repo original: https://github.com/A4Bio/MeToken
 

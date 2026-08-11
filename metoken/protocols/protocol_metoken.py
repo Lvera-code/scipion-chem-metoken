@@ -127,10 +127,10 @@ class ProtMeTokenCorroboration(EMProtocol):
             return
 
         pdbPath = os.path.abspath(self.inputStructure.get().getFileName())
-        # Ruta ABSOLUTA por consistencia/defensa (mismo bug real ya
-        # encontrado+corregido en scipion-chem-deepmvp/-deepptmpred/-emngly
-        # -- aqui 'runMeToken' no sobreescribe cwd, asi que en principio
-        # resolveria bien de todas formas, pero no vale la pena arriesgarlo).
+        # Ruta ABSOLUTA por consistencia/defensa (mismo patron que
+        # scipion-chem-deepmvp/-deepptmpred/-emngly -- aqui 'runMeToken' no
+        # sobreescribe cwd, asi que en principio resolveria bien de todas
+        # formas, pero no vale la pena arriesgarlo).
         outCsv = os.path.abspath(self._getExtraPath('metoken_scores.csv'))
         args = (
             f'--repo-dir {metokenPlugin.getMeTokenDir()} --checkpoint-path {metokenPlugin.getCheckpointPath()} '

@@ -2,10 +2,10 @@
 """Runner standalone para MeToken (corroboracion informativa de TIPO, no un motor de consenso).
 
 VENDORIZADO byte-a-byte desde
-``PTM-Prediction/src/engines/_metoken_runner.py`` (confirmado via ``diff``)
--- misma politica que ``scipion-chem-deepptmpred``/``scipion-chem-emngly``:
-los 2 parches reales que contiene (Biopython three_to_one, device='cuda'
-hardcodeado) nunca se reescriben de memoria.
+``PTM-Prediction/src/engines/_metoken_runner.py`` -- misma politica que
+``scipion-chem-deepptmpred``/``scipion-chem-emngly``: los 2 parches que
+contiene (Biopython three_to_one, device='cuda' hardcodeado) nunca se
+reescriben de memoria.
 
 NUNCA se importa desde el paquete ``src`` -- requiere torch/torch_scatter/
 transformers/biopython/omegaconf, dependencias SOLO presentes en el venv
@@ -14,14 +14,14 @@ dedicado de MeToken (``Settings.METOKEN_PYTHON_BIN``, distinto de
 via subprocess desde ``src/engines/metoken_engine.py``, mismo patron que
 ``_deepptmpred_runner.py`` (Fase 2).
 
-## Por que existe (rol en el pipeline, decision 2026-08-01)
+## Por que existe (rol en el pipeline)
 
-Investigado a fondo (subagente Opus) que ``github.com/A4Bio/MeToken``
-(ICLR 2025) es el motor estructural mas potente evaluado hasta ahora para
-PTM -- consume coordenadas backbone reales (N/CA/C/O) via grafo 3D-kNN +
-marcos locales por cuaternion, mucho mas rico que los 4 escalares
-(SASA/phi/psi/plDDT) que usa DeepPTMPred -- pero el checkpoint PUBLICADO es
-un CLASIFICADOR DE TIPO en sitios YA CONOCIDOS, no un detector de sitio:
+``github.com/A4Bio/MeToken`` (ICLR 2025) es el motor estructural mas
+potente evaluado para PTM -- consume coordenadas backbone reales (N/CA/C/O)
+via grafo 3D-kNN + marcos locales por cuaternion, mucho mas rico que los 4
+escalares (SASA/phi/psi/plDDT) que usa DeepPTMPred -- pero el checkpoint
+PUBLICADO es un CLASIFICADOR DE TIPO en sitios YA CONOCIDOS, no un detector
+de sitio:
 confirmado en ``model_interface.py:40`` del repo (``valid_idx = batch['Q'] >
 0 if self.hparams.with_null_ptm == 0 else ...`` -- la clase "Not a PTM type"
 queda excluida de la evaluacion/entrenamiento cuando ``with_null_ptm=0``, que
@@ -39,7 +39,7 @@ wiring (subprocess con manejo de error no fatal) y
 ``src/engines/ptm_annotation.py::annotate_pdb_path`` para el punto de
 enganche opcional.
 
-## Dos bugs reales confirmados corriendo el repo (no asumidos, ver STATUS.md)
+## Dos bugs confirmados ejecutando el repo (no asumidos, ver STATUS.md)
 
 1. **``inference.py:61`` llama a ``PDB.Polypeptide.three_to_one``**, eliminado
    de Biopython en la version >=1.80 (confirmado: ``hasattr(PDB.Polypeptide,
@@ -53,7 +53,7 @@ enganche opcional.
 2. **``src/metoken_model.py:213`` tiene ``device='cuda'`` hardcodeado**
    (``codebook_mask = torch.ones(len(codebook), dtype=torch.int32,
    device='cuda')``, dentro de ``MeToken_Model.__init__``) -- imposibilita
-   construir el modelo en CPU. Confirmado real: sin parche,
+   construir el modelo en CPU. Verificado: sin parche,
    ``MeToken_Model(params)`` revienta con ``AssertionError: Torch not
    compiled with CUDA enabled`` en esta maquina (sin GPU, sin
    ``nvidia-smi``). Es la UNICA linea de todo ``src/`` con ``device='cuda'``
@@ -66,7 +66,7 @@ enganche opcional.
    cualquier otra llamada a ``torch.ones`` (dentro o fuera de ese bloque) no
    se ve afectada. No se edita ``src/metoken_model.py`` (vendored).
 
-Ambos parches verificados real: corriendo SIN parche 2 revienta
+Ambos parches verificados: corriendo SIN parche 2 revienta
 (``AssertionError``); corriendo CON ambos parches sobre
 ``examples/Q16613.pdb`` (el ejemplo del propio repo) reproduce EXACTO el
 resultado documentado en su ``quick_inference.ipynb``
