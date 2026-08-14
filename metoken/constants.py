@@ -43,8 +43,7 @@ GPU_REQUIRED = False
 # MeToken license (upstream): MIT, declared in the original repo's LICENSE -- the file's copyright names a third party unrelated to the authors ('Corleone-Huang, 2023'), likely copied from another template, but the license term (MIT) is permissive regardless.
 
 # Unlike DeepMVP/EMNGly, the checkpoint IS scriptable: a real GitHub
-# release, direct download link (confirmed in
-# PTM-Prediction/src/engines/metoken_engine.py::_validate_installation).
+# release, direct download link.
 CHECKPOINT_ZIP_URL = 'https://github.com/A4Bio/MeToken/releases/download/1.0/pretrained_model.zip'
 CHECKPOINT_FILENAME = 'checkpoint.ckpt'
 

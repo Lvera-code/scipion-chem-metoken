@@ -8,8 +8,8 @@ threshold-passing/consensus, only compares against the type already
 agreed on in Phase 3.
 
 ``ProtMeTokenCorroboration`` corroborates the type of already-accepted PTM
-sites with a vendorized runner (identical to the one already validated
-end-to-end in the standalone pipeline).
+sites with a vendorized runner, a maintained byte-for-byte copy of the
+upstream inference script.
 
 Original repo: https://github.com/A4Bio/MeToken
 

@@ -1,18 +1,15 @@
 #!/usr/bin/env python
 """Standalone runner for MeToken (informative TYPE corroboration, not a consensus engine).
 
-VENDORIZED byte-for-byte from
-``PTM-Prediction/src/engines/_metoken_runner.py`` -- same policy as
+A maintained, byte-for-byte vendored copy -- same policy as
 ``scipion-chem-deepptmpred``/``scipion-chem-emngly``: the 2 patches it
 contains (Biopython three_to_one, hardcoded device='cuda') are never
 rewritten from memory.
 
-NEVER imported from the ``src`` package -- it requires torch/torch_scatter/
-transformers/biopython/omegaconf, dependencies ONLY present in MeToken's
-dedicated venv (``Settings.METOKEN_PYTHON_BIN``, distinct from
-``DEEPMVP_PYTHON_BIN``/``DEEPPTMPRED_PYTHON_BIN``). It is invoked
-EXCLUSIVELY via subprocess from ``src/engines/metoken_engine.py``, same
-pattern as ``_deepptmpred_runner.py`` (Phase 2).
+Requires torch/torch_scatter/transformers/biopython/omegaconf,
+dependencies ONLY present in this plugin's dedicated conda environment.
+It is invoked EXCLUSIVELY via subprocess from this plugin's protocol,
+same pattern as ``scipion-chem-deepptmpred``'s runner.
 
 ## Why it exists (role in the pipeline)
 
@@ -30,16 +27,11 @@ is how the published checkpoint ships). Verified with a real run against
 CANNOT be used to decide whether a site is a PTM or not.
 
 That is why its role here follows the same non-decisory pattern as
-corroboration via secretory localization
-(``src/structural/uniprot_localization_client.py``): purely informative
-TYPE corroboration on sites the consensus has ALREADY accepted
-(``pasa_umbral=true`` in ``ptm_annotation.py``), it NEVER changes
-``pasa_umbral``/consensus. See ``src/engines/metoken_engine.py`` for the
-wiring (subprocess with non-fatal error handling) and
-``src/engines/ptm_annotation.py::annotate_pdb_path`` for the optional
-hook point.
+secretory-localization corroboration in ``scipion-chem-ptmannotation``:
+purely informative TYPE corroboration on sites the consensus has ALREADY
+accepted, it NEVER changes acceptance/consensus.
 
-## Two bugs confirmed by running the repo (not assumed, see STATUS.md)
+## Two bugs confirmed by running the repo (not assumed)
 
 1. **``inference.py:61`` calls ``PDB.Polypeptide.three_to_one``**, removed
    from Biopython in version >=1.80 (confirmed: ``hasattr(PDB.Polypeptide,
@@ -106,7 +98,7 @@ this environment's torch/CPU/Python combination on ``data.pyg.org``
 ``torch-2.1.0+cpu``, this machine has ``torch==2.13.0+cpu``), so
 ``pip install --no-build-isolation torch_scatter`` compiles from source
 (C++/CPU extension, ~a few minutes on this real machine, not the ~15 min
-estimated beforehand -- see STATUS.md).
+estimated beforehand).
 """
 
 import argparse
@@ -197,20 +189,13 @@ def _patch_three_to_one() -> None:
 def _load_metoken_modules(repo_dir: Path):
     """Inserts ``repo_dir`` into ``sys.path`` and imports the vendorized repo's modules.
 
-    ``repo_dir`` is inserted at position 0 of ``sys.path`` -- since this
-    script ALWAYS runs as a file (``python _metoken_runner.py ...``, never
-    ``python -c``/``-m`` from this project's root), ``sys.path[0]`` is
-    already this script's own directory
-    (``PTM-Prediction/src/engines/``), which has no ``src/`` subdirectory
-    of its own -- verified for real that there is NO collision with this
-    project's ``src`` package (which does have a real
-    ``src/__init__.py``, unlike MeToken's ``src/``, which is a namespace
-    package with no ``__init__.py`` at its root): ``import src.metoken_model``
-    inside this isolated process always resolves to MeToken's ``src/``,
-    confirmed by running this runner as a real script (not in interactive
-    mode, where the working directory IS added to ``sys.path`` and would
-    produce a real collision -- be careful when testing manually with
-    ``python -c`` from this project's root).
+    ``repo_dir`` is inserted at position 0 of ``sys.path`` so
+    ``import src.metoken_model`` resolves to MeToken's own ``src/`` (a
+    namespace package with no ``__init__.py`` at its root) -- confirmed by
+    running this runner as a real script, not interactively (interactive
+    mode adds the working directory to ``sys.path`` instead, which could
+    produce a collision with an unrelated ``src`` package elsewhere; be
+    careful when testing manually with ``python -c``).
     """
     sys.path.insert(0, str(repo_dir))
     _patch_three_to_one()

@@ -43,9 +43,8 @@ class Plugin(pwchemPlugin):
     """MeToken (A4Bio/MeToken, MIT) is installed by cloning the upstream
     repo and building a dedicated conda environment (CPU-only torch +
     torch_scatter compiled from source -- no prebuilt wheel exists for
-    this version combination, see the sibling project's STATUS.md). The
-    checkpoint IS downloaded automatically (a real GitHub release, direct
-    link -- unlike DeepMVP/EMNGly)."""
+    this version combination). The checkpoint IS downloaded automatically
+    (a real GitHub release, direct link -- unlike DeepMVP/EMNGly)."""
 
     @classmethod
     def _defineVariables(cls):
@@ -69,10 +68,9 @@ class Plugin(pwchemPlugin):
         # CPU-only torch + nvidia/triton purge (same real fix already
         # applied in scipion-chem-stackglyembed/scipion-chem-emngly).
         # torch_scatter has NO prebuilt wheel for this combination
-        # (confirmed in STATUS.md: data.pyg.org's wheel index only goes up
-        # to torch-2.1.0+cpu) -- compiled from source
-        # ('--no-build-isolation', really a few minutes, not the ~15
-        # estimated before it was actually measured).
+        # (data.pyg.org's wheel index only goes up to torch-2.1.0+cpu) --
+        # compiled from source ('--no-build-isolation', really a few
+        # minutes, not the ~15 estimated before it was actually measured).
         installer.addCommand(
             f"git clone --depth 1 {UPSTREAM_URL} {home}",
             'METOKEN_CLONED'

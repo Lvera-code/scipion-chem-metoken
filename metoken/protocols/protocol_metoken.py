@@ -37,12 +37,10 @@ from pyworkflow.protocol import params
 
 from .. import Plugin as metokenPlugin
 
-# Canonical pipeline type -> real MeToken label (vendorized from
-# PTM-Prediction/src/engines/ptm_annotation.py::CANONICAL_TO_METOKEN_TYPE,
-# verified by reading MeToken's real repo src/constant.py::PTMtype_list). 3
-# types from this project (crotonylation/glutarylation/citrullination) have
-# no equivalent among MeToken's 24 real classes -- deliberately left out of
-# this dict.
+# Canonical pipeline type -> real MeToken label (verified by reading
+# MeToken's real repo src/constant.py::PTMtype_list). 3 types from this
+# project (crotonylation/glutarylation/citrullination) have no equivalent
+# among MeToken's 24 real classes -- deliberately left out of this dict.
 CANONICAL_TO_METOKEN_TYPE = {
     'phosphorylation': 'Phosphorylation',
     'phosphorylation_y': 'Phosphorylation',
@@ -80,10 +78,9 @@ class ProtMeTokenCorroboration(EMProtocol):
     local frames). NEVER a consensus engine -- the published checkpoint is
     a TYPE classifier on ALREADY-KNOWN sites, not a site detector (verified
     empirically: it predicts types with high confidence even on positions
-    with no real PTM, see ``PTM-Prediction/src/engines/_metoken_runner.py``
-    docstring) -- same non-decisory contract as
-    ``scipion-chem-netcleave``/Kinase Library (see
-    SCIPION_INTEGRATION_SPEC.md §G.1).
+    with no real PTM, see this plugin's own runner docstring for the
+    full investigation) -- same non-decisory contract as
+    ``scipion-chem-netcleave``/Kinase Library.
 
     Output
     ------
