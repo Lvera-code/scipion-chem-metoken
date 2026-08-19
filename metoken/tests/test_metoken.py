@@ -78,7 +78,7 @@ class TestMeTokenCorroboration(BaseTest):
         rebuilt.write()
         cls.protAnnotated = protDefSeqROIs
 
-    def test(self):
+    def _runMeTokenCorroboration(self):
         # chainId=_TEST_CHAIN ('C'), NOT the default 'A': ProtChemPrepareReceptor
         # filters by label_asym_id ('C', see _TEST_CHAIN above) but the
         # output PDB KEEPS that same letter 'C' as its real chain ID (it
@@ -90,6 +90,10 @@ class TestMeTokenCorroboration(BaseTest):
         protMeToken.inputStructure.set(self.protPrepareReceptor)
         protMeToken.inputStructure.setExtended('outputStructure')
         self.launchProtocol(protMeToken, wait=True)
+        return protMeToken
+
+    def test(self):
+        protMeToken = self._runMeTokenCorroboration()
 
         outROIs = getattr(protMeToken, 'outputROIs', None)
         self.assertIsNotNone(outROIs)
