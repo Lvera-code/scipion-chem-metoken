@@ -35,8 +35,7 @@ accepted, it NEVER changes acceptance/consensus.
 
 1. **``inference.py:61`` calls ``PDB.Polypeptide.three_to_one``**, removed
    from Biopython in version >=1.80 (confirmed: ``hasattr(PDB.Polypeptide,
-   'three_to_one')`` -> ``False`` in Biopython 1.87, the version
-   ``pip install biopython`` installs today) -- fails with
+   'three_to_one')`` -> ``False`` in Biopython 1.87) -- fails with
    ``AttributeError`` in any modern environment. Replaced here with
    ``PDB.Polypeptide.protein_letters_3to1``/``protein_letters_3to1_extended``
    (the dictionaries that DO exist in modern Biopython), monkeypatched
