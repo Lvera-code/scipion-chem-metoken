@@ -30,6 +30,7 @@ using a local MeToken installation (structural graph classifier).
 import os
 import subprocess
 
+from pyworkflow.utils import Environ
 from scipion.install.funcs import InstallHelper
 
 from pwchem import Plugin as pwchemPlugin
@@ -88,12 +89,21 @@ class Plugin(pwchemPlugin):
         # 'from src.datasets.featurizer import featurize' runs, confirmed
         # by a real ModuleNotFoundError traceback when it was removed.
         #
-        # CPU-only torch + nvidia/triton purge (same real fix already
-        # applied in scipion-chem-stackglyembed/scipion-chem-emngly).
-        # torch_scatter has NO prebuilt wheel for this combination
-        # (data.pyg.org's wheel index only goes up to torch-2.1.0+cpu) --
-        # compiled from source ('--no-build-isolation', really a few
-        # minutes, not the ~15 estimated before it was actually measured).
+        # Torch install + nvidia/triton purge are now GPU-conditional
+        # (checked via 'nvidia-smi', same criterion as the rest of this
+        # project's plugins); on this dev machine (no GPU, the actually-
+        # tested branch) stays exactly the CPU-only + purge combination
+        # already verified. torch_scatter has NO prebuilt wheel for this
+        # combination (data.pyg.org's wheel index only goes up to
+        # torch-2.1.0+cpu) -- compiled from source either way
+        # ('--no-build-isolation', really a few minutes). REAL CAVEAT, not
+        # verified on this GPU-less machine: a GPU-accelerated
+        # torch_scatter build additionally needs the CUDA developer
+        # toolkit (nvcc), not just the runtime driver 'nvidia-smi' checks
+        # for -- if the host has a GPU+driver but no nvcc, this compiles a
+        # CPU-only torch_scatter against a GPU-enabled torch (functional,
+        # just without torch_scatter's own GPU kernels). Flagging this
+        # rather than assuming it silently works.
         installer.addCommand(
             f"git clone --depth 1 {UPSTREAM_URL} {home}",
             'METOKEN_CLONED'
@@ -101,14 +111,20 @@ class Plugin(pwchemPlugin):
             METOKEN_DIC['name'], binaryVersion=METOKEN_DIC['version'], pythonVersion='3.10'
         ).addCommand(
             f"{cls.getEnvActivationCommand(METOKEN_DIC)} && "
-            "pip install --index-url https://download.pytorch.org/whl/cpu torch && "
+            "if command -v nvidia-smi > /dev/null 2>&1; then "
+            "pip install torch; "
+            "else "
+            "pip install --index-url https://download.pytorch.org/whl/cpu torch; "
+            "fi && "
             "pip install numpy pandas biopython omegaconf transformers h5py && "
             "pip install --no-build-isolation torch_scatter && "
+            "if ! command -v nvidia-smi > /dev/null 2>&1; then "
             "pip uninstall -y cuda-bindings cuda-pathfinder cuda-toolkit nvidia-cublas "
             "nvidia-cuda-cupti nvidia-cuda-nvrtc nvidia-cuda-runtime nvidia-cudnn-cu13 "
             "nvidia-cufft nvidia-cufile nvidia-curand nvidia-cusolver nvidia-cusparse "
             "nvidia-cusparselt-cu13 nvidia-nccl-cu13 nvidia-nvjitlink nvidia-nvshmem-cu13 "
-            "nvidia-nvtx triton || true",
+            "nvidia-nvtx triton || true; "
+            "fi",
             'METOKEN_DEPS_INSTALLED'
         ).addCommand(
             f"cd {home} && curl -fsSL -o pretrained_model.zip {CHECKPOINT_ZIP_URL} && "
@@ -174,4 +190,16 @@ class Plugin(pwchemPlugin):
         activation = cls.getVar(METOKEN_DIC['activation'])
         scriptPath = cls.getRunnerScriptPath()
         fullProgram = f'MPLBACKEND=Agg {activation} && python {scriptPath}'
-        protocol.runJob(fullProgram, args, env=cls.getEnviron(), cwd=cwd)
+        # CUDA_VISIBLE_DEVICES: the runner decides GPU/CPU itself
+        # ('torch.cuda.is_available()', no CLI flag) -- this is the real
+        # lever useGpu/gpuList (protocol_metoken.py) have on that check.
+        # 'cls.getEnviron()' is never overridden anywhere in this project
+        # (always returns None, equivalent to inheriting os.environ) --
+        # building a real copy here is additive. Must be a real
+        # 'pyworkflow.utils.Environ' (a dict subclass with extra methods
+        # like 'getPrepend()' pyworkflow's job runner calls) -- a plain
+        # dict fails with a real AttributeError, confirmed by an actual
+        # failed test run (see scipion-chem-deepmvp for the trace).
+        env = Environ(os.environ)
+        env['CUDA_VISIBLE_DEVICES'] = protocol.gpuList.get() if protocol.useGpu.get() else ''
+        protocol.runJob(fullProgram, args, env=env, cwd=cwd)

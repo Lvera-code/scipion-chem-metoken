@@ -36,7 +36,9 @@ UPSTREAM_URL = 'https://github.com/A4Bio/MeToken'
 
 # Confirmed by reading scripts/metoken_runner.py: the only device/CUDA
 # handling is the '_force_cpu_ones' patch (always redirects to CPU if CUDA
-# is not available) -- no CLI flag to expose.
+# is not available) -- no CLI flag to expose. The protocol's USE_GPU/
+# GPU_LIST hidden params act on that decision indirectly, via
+# CUDA_VISIBLE_DEVICES (see runMeToken in __init__.py).
 GPU_REQUIRED = False
 
 # MeToken license (upstream): MIT, declared in the original repo's LICENSE -- the file's copyright names a third party unrelated to the authors ('Corleone-Huang, 2023'), likely copied from another template, but the license term (MIT) is permissive regardless.

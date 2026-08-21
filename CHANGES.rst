@@ -2,6 +2,19 @@
 CHANGES
 =========
 
+0.4.0
+=====
+- GPU support: ``USE_GPU``/``GPU_LIST`` hidden params added to
+  ``ProtMeTokenCorroboration``, wired to ``CUDA_VISIBLE_DEVICES`` in
+  ``runMeToken`` (the runner redirects a hardcoded ``device='cuda'`` to
+  CPU only when CUDA is unavailable, no native CLI flag). Torch install +
+  nvidia/triton purge are now GPU-conditional; without a GPU (this dev
+  machine's case, the only branch verified here) stays exactly the
+  already-verified CPU-only-wheel + purge behavior. Documented a real
+  caveat: a GPU-accelerated ``torch_scatter`` build additionally needs the
+  CUDA developer toolkit (``nvcc``), not just the runtime driver -- not
+  verified on this GPU-less machine.
+
 0.3.0
 =====
 - Install list trimmed to what ``inference.py``'s real transitive import
