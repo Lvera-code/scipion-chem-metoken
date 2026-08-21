@@ -96,14 +96,16 @@ class Plugin(pwchemPlugin):
         # already verified. torch_scatter has NO prebuilt wheel for this
         # combination (data.pyg.org's wheel index only goes up to
         # torch-2.1.0+cpu) -- compiled from source either way
-        # ('--no-build-isolation', really a few minutes). REAL CAVEAT, not
-        # verified on this GPU-less machine: a GPU-accelerated
-        # torch_scatter build additionally needs the CUDA developer
-        # toolkit (nvcc), not just the runtime driver 'nvidia-smi' checks
-        # for -- if the host has a GPU+driver but no nvcc, this compiles a
-        # CPU-only torch_scatter against a GPU-enabled torch (functional,
-        # just without torch_scatter's own GPU kernels). Flagging this
-        # rather than assuming it silently works.
+        # ('--no-build-isolation', really a few minutes). REAL CAVEAT: a
+        # GPU-accelerated torch_scatter build additionally needs the CUDA
+        # developer toolkit (nvcc), not just the runtime driver
+        # 'nvidia-smi' checks for -- if a host has a GPU+driver but no
+        # nvcc, this compiles a CPU-only torch_scatter against a
+        # GPU-enabled torch (functional, just without torch_scatter's own
+        # GPU kernels). Confirmed 2026-08-21 on a real GPU Colab session
+        # (Tesla T4): 'nvcc' (CUDA 12.8) IS present there, so this caveat
+        # does not bite in that specific environment -- it would on a bare
+        # production host with only the runtime driver installed.
         installer.addCommand(
             f"git clone --depth 1 {UPSTREAM_URL} {home}",
             'METOKEN_CLONED'
@@ -200,6 +202,10 @@ class Plugin(pwchemPlugin):
         # like 'getPrepend()' pyworkflow's job runner calls) -- a plain
         # dict fails with a real AttributeError, confirmed by an actual
         # failed test run (see scipion-chem-deepmvp for the trace).
+        # CUDA_VISIBLE_DEVICES='' vs unset/'0' verified for real against
+        # torch on a real GPU (Colab, Tesla T4, 2026-08-21):
+        # 'torch.cuda.is_available()' flips False/True accordingly -- not
+        # just a theoretical lever.
         env = Environ(os.environ)
         env['CUDA_VISIBLE_DEVICES'] = protocol.gpuList.get() if protocol.useGpu.get() else ''
         protocol.runJob(fullProgram, args, env=env, cwd=cwd)

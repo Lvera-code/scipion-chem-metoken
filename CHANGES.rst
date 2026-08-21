@@ -10,10 +10,15 @@ CHANGES
   CPU only when CUDA is unavailable, no native CLI flag). Torch install +
   nvidia/triton purge are now GPU-conditional; without a GPU (this dev
   machine's case, the only branch verified here) stays exactly the
-  already-verified CPU-only-wheel + purge behavior. Documented a real
-  caveat: a GPU-accelerated ``torch_scatter`` build additionally needs the
-  CUDA developer toolkit (``nvcc``), not just the runtime driver -- not
-  verified on this GPU-less machine.
+  already-verified CPU-only-wheel + purge behavior. The
+  ``CUDA_VISIBLE_DEVICES`` lever itself was verified for real against
+  torch on a Colab GPU session (Tesla T4): ``torch.cuda.is_available()``
+  flips False/True exactly as expected; that same session confirmed
+  ``nvcc`` (CUDA 12.8) is present there too, so the real caveat below does
+  not bite in that specific environment. Documented caveat: a
+  GPU-accelerated ``torch_scatter`` build additionally needs the CUDA
+  developer toolkit (``nvcc``), not just the runtime driver -- would bite
+  on a bare production host with only the runtime driver installed.
 
 0.3.0
 =====
