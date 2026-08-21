@@ -5,18 +5,17 @@ CHANGES
 0.4.1
 =====
 - Fixed a real bug in the GPU torch install found via an actual install
-  attempt on a Colab GPU session (Tesla T4, 2026-08-21): a plain ``pip
-  install torch`` resolved a build compiled against CUDA 13.0 while the
-  real system ``nvcc`` was 12.8, breaking ``torch_scatter``'s
-  compile-from-source step with a real ``RuntimeError`` (CUDA version
-  mismatch). Fixed by detecting the real installed CUDA version and
-  requesting the matching torch wheel index explicitly -- confirmed this
-  produces a torch build whose own ``torch.version.cuda`` matches
-  ``nvcc`` exactly. Whether ``torch_scatter`` itself then compiles
-  successfully end-to-end was NOT reconfirmed after this fix (the
-  validation session was lost mid-check and GPU quota prevented
-  reopening one) -- flagged as the one remaining real unknown, not
-  silently assumed fixed.
+  attempt on a real GPU machine: a plain ``pip install torch`` resolved a
+  build compiled against a newer CUDA version than the real system
+  ``nvcc``, breaking ``torch_scatter``'s compile-from-source step with a
+  real ``RuntimeError`` (CUDA version mismatch). Fixed by detecting the
+  real installed CUDA version and requesting the matching torch wheel
+  index explicitly -- confirmed this produces a torch build whose own
+  ``torch.version.cuda`` matches ``nvcc`` exactly. Whether
+  ``torch_scatter`` itself then compiles successfully end-to-end was NOT
+  reconfirmed after this fix (the validation session was interrupted
+  mid-check) -- flagged as the one remaining real unknown, not silently
+  assumed fixed.
 
 0.4.0
 =====
@@ -24,17 +23,16 @@ CHANGES
   ``ProtMeTokenCorroboration``, wired to ``CUDA_VISIBLE_DEVICES`` in
   ``runMeToken`` (the runner redirects a hardcoded ``device='cuda'`` to
   CPU only when CUDA is unavailable, no native CLI flag). Torch install +
-  nvidia/triton purge are now GPU-conditional; without a GPU (this dev
-  machine's case, the only branch verified here) stays exactly the
-  already-verified CPU-only-wheel + purge behavior. The
+  nvidia/triton purge are now GPU-conditional; without a GPU, stays
+  exactly the already-verified CPU-only-wheel + purge behavior. The
   ``CUDA_VISIBLE_DEVICES`` lever itself was verified for real against
-  torch on a Colab GPU session (Tesla T4): ``torch.cuda.is_available()``
-  flips False/True exactly as expected; that same session confirmed
-  ``nvcc`` (CUDA 12.8) is present there too, so the real caveat below does
-  not bite in that specific environment. Documented caveat: a
-  GPU-accelerated ``torch_scatter`` build additionally needs the CUDA
-  developer toolkit (``nvcc``), not just the runtime driver -- would bite
-  on a bare production host with only the runtime driver installed.
+  torch on a real GPU machine: ``torch.cuda.is_available()`` flips
+  False/True exactly as expected. Documented caveat: a GPU-accelerated
+  ``torch_scatter`` build additionally needs the CUDA developer toolkit
+  (``nvcc``), not just the runtime driver -- would bite on a bare
+  production host with only the runtime driver installed (confirmed NOT
+  an issue on at least one real GPU cloud environment tested, where
+  ``nvcc`` was already present).
 
 0.3.0
 =====

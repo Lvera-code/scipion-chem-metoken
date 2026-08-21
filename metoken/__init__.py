@@ -91,20 +91,19 @@ class Plugin(pwchemPlugin):
         #
         # Torch install + nvidia/triton purge are now GPU-conditional
         # (checked via 'nvidia-smi', same criterion as the rest of this
-        # project's plugins); on this dev machine (no GPU, the actually-
-        # tested branch) stays exactly the CPU-only + purge combination
-        # already verified. torch_scatter has NO prebuilt wheel for this
-        # combination (data.pyg.org's wheel index only goes up to
-        # torch-2.1.0+cpu) -- compiled from source either way
-        # ('--no-build-isolation', really a few minutes). REAL CAVEAT: a
-        # GPU-accelerated torch_scatter build additionally needs the CUDA
-        # developer toolkit (nvcc), not just the runtime driver
+        # project's plugins); without a GPU, stays exactly the CPU-only +
+        # purge combination already verified. torch_scatter has NO
+        # prebuilt wheel for this combination (data.pyg.org's wheel index
+        # only goes up to torch-2.1.0+cpu) -- compiled from source either
+        # way ('--no-build-isolation', really a few minutes). REAL
+        # CAVEAT: a GPU-accelerated torch_scatter build additionally needs
+        # the CUDA developer toolkit (nvcc), not just the runtime driver
         # 'nvidia-smi' checks for -- if a host has a GPU+driver but no
         # nvcc, this compiles a CPU-only torch_scatter against a
         # GPU-enabled torch (functional, just without torch_scatter's own
-        # GPU kernels). Confirmed 2026-08-21 on a real GPU Colab session
-        # (Tesla T4): 'nvcc' (CUDA 12.8) IS present there, so this caveat
-        # does not bite in that specific environment -- it would on a bare
+        # GPU kernels). Confirmed on at least one real GPU cloud
+        # environment that 'nvcc' IS present there, so this caveat does
+        # not bite in that specific environment -- it would on a bare
         # production host with only the runtime driver installed.
         installer.addCommand(
             f"git clone --depth 1 {UPSTREAM_URL} {home}",
@@ -113,24 +112,22 @@ class Plugin(pwchemPlugin):
             METOKEN_DIC['name'], binaryVersion=METOKEN_DIC['version'], pythonVersion='3.10'
         ).addCommand(
             f"{cls.getEnvActivationCommand(METOKEN_DIC)} && "
-            # Real bug found+fixed via an actual GPU install run (Colab,
-            # Tesla T4, 2026-08-21): a plain 'pip install torch' resolved
-            # a build compiled against CUDA 13.0, while the system's real
-            # 'nvcc' was 12.8 -- torch itself worked, but compiling
-            # torch_scatter's C++/CUDA extension against it failed with a
-            # real error ('RuntimeError: The detected CUDA version (12.8)
-            # mismatches the version that was used to compile PyTorch
-            # (13.0)'). Fixed by detecting the real installed CUDA
-            # version and requesting the matching torch wheel index
-            # explicitly (confirmed: this produces a torch build whose
-            # own 'torch.version.cuda' matches nvcc exactly). Whether
-            # torch_scatter's build then succeeds end-to-end was not
-            # reconfirmed after this fix (the validation Colab session
-            # was lost mid-check, GPU quota prevented reopening one) --
-            # the CUDA-version match itself is unambiguously correct and
+            # Real bug found+fixed via an actual GPU install run: a plain
+            # 'pip install torch' resolved a build compiled against a
+            # newer CUDA version than the system's real 'nvcc' -- torch
+            # itself worked, but compiling torch_scatter's C++/CUDA
+            # extension against it failed with a real error
+            # ('RuntimeError: The detected CUDA version mismatches the
+            # version that was used to compile PyTorch'). Fixed by
+            # detecting the real installed CUDA version and requesting
+            # the matching torch wheel index explicitly (confirmed: this
+            # produces a torch build whose own 'torch.version.cuda'
+            # matches nvcc exactly). Whether torch_scatter's build then
+            # succeeds end-to-end was not reconfirmed after this fix (the
+            # validation run was interrupted mid-check) -- the
+            # CUDA-version match itself is unambiguously correct and
             # necessary regardless, so it ships now; flagged as the one
-            # remaining real unknown for a future session with GPU quota
-            # available.
+            # remaining real unknown for a future validation pass.
             "if command -v nvidia-smi > /dev/null 2>&1; then "
             "CUDA_VER=$(nvcc --version 2>/dev/null | grep -oP 'release \\K[0-9]+\\.[0-9]+' | tr -d '.'); "
             "if [ -n \"$CUDA_VER\" ]; then pip install torch --index-url https://download.pytorch.org/whl/cu${CUDA_VER}; "
@@ -223,7 +220,7 @@ class Plugin(pwchemPlugin):
         # dict fails with a real AttributeError, confirmed by an actual
         # failed test run (see scipion-chem-deepmvp for the trace).
         # CUDA_VISIBLE_DEVICES='' vs unset/'0' verified for real against
-        # torch on a real GPU (Colab, Tesla T4, 2026-08-21):
+        # torch on a real GPU machine:
         # 'torch.cuda.is_available()' flips False/True accordingly -- not
         # just a theoretical lever.
         env = Environ(os.environ)
