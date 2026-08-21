@@ -19,7 +19,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='scipion-chem-metoken',
-    version='0.4.0',
+    version='0.4.1',
     description='Scipion framework plugin for PTM prediction with MeToken',
     long_description=long_description,
     url='https://github.com/Lvera-code/scipion-chem-metoken',

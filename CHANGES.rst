@@ -2,6 +2,22 @@
 CHANGES
 =========
 
+0.4.1
+=====
+- Fixed a real bug in the GPU torch install found via an actual install
+  attempt on a Colab GPU session (Tesla T4, 2026-08-21): a plain ``pip
+  install torch`` resolved a build compiled against CUDA 13.0 while the
+  real system ``nvcc`` was 12.8, breaking ``torch_scatter``'s
+  compile-from-source step with a real ``RuntimeError`` (CUDA version
+  mismatch). Fixed by detecting the real installed CUDA version and
+  requesting the matching torch wheel index explicitly -- confirmed this
+  produces a torch build whose own ``torch.version.cuda`` matches
+  ``nvcc`` exactly. Whether ``torch_scatter`` itself then compiles
+  successfully end-to-end was NOT reconfirmed after this fix (the
+  validation session was lost mid-check and GPU quota prevented
+  reopening one) -- flagged as the one remaining real unknown, not
+  silently assumed fixed.
+
 0.4.0
 =====
 - GPU support: ``USE_GPU``/``GPU_LIST`` hidden params added to

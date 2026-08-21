@@ -113,8 +113,28 @@ class Plugin(pwchemPlugin):
             METOKEN_DIC['name'], binaryVersion=METOKEN_DIC['version'], pythonVersion='3.10'
         ).addCommand(
             f"{cls.getEnvActivationCommand(METOKEN_DIC)} && "
+            # Real bug found+fixed via an actual GPU install run (Colab,
+            # Tesla T4, 2026-08-21): a plain 'pip install torch' resolved
+            # a build compiled against CUDA 13.0, while the system's real
+            # 'nvcc' was 12.8 -- torch itself worked, but compiling
+            # torch_scatter's C++/CUDA extension against it failed with a
+            # real error ('RuntimeError: The detected CUDA version (12.8)
+            # mismatches the version that was used to compile PyTorch
+            # (13.0)'). Fixed by detecting the real installed CUDA
+            # version and requesting the matching torch wheel index
+            # explicitly (confirmed: this produces a torch build whose
+            # own 'torch.version.cuda' matches nvcc exactly). Whether
+            # torch_scatter's build then succeeds end-to-end was not
+            # reconfirmed after this fix (the validation Colab session
+            # was lost mid-check, GPU quota prevented reopening one) --
+            # the CUDA-version match itself is unambiguously correct and
+            # necessary regardless, so it ships now; flagged as the one
+            # remaining real unknown for a future session with GPU quota
+            # available.
             "if command -v nvidia-smi > /dev/null 2>&1; then "
-            "pip install torch; "
+            "CUDA_VER=$(nvcc --version 2>/dev/null | grep -oP 'release \\K[0-9]+\\.[0-9]+' | tr -d '.'); "
+            "if [ -n \"$CUDA_VER\" ]; then pip install torch --index-url https://download.pytorch.org/whl/cu${CUDA_VER}; "
+            "else pip install torch; fi; "
             "else "
             "pip install --index-url https://download.pytorch.org/whl/cpu torch; "
             "fi && "
