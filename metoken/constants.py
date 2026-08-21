@@ -32,7 +32,6 @@ METOKEN_DIC = {
     'activation': 'METOKEN_ACTIVATION_CMD',
 }
 
-READ_URL = 'https://github.com/Lvera-code/scipion-chem-metoken'
 UPSTREAM_URL = 'https://github.com/A4Bio/MeToken'
 
 # Confirmed by reading scripts/metoken_runner.py: the only device/CUDA

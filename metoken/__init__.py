@@ -43,8 +43,10 @@ class Plugin(pwchemPlugin):
     """MeToken (A4Bio/MeToken, MIT) is installed by cloning the upstream
     repo and building a dedicated conda environment (CPU-only torch +
     torch_scatter compiled from source -- no prebuilt wheel exists for
-    this version combination). The checkpoint IS downloaded automatically
-    (a real GitHub release, direct link -- unlike DeepMVP/EMNGly)."""
+    this version combination, package selection trimmed to what
+    'inference.py' actually needs, not the full upstream training
+    environment.yml -- see addMeTokenPackage below). The checkpoint is
+    downloaded automatically (a real GitHub release, direct link)."""
 
     @classmethod
     def _defineVariables(cls):
@@ -65,6 +67,27 @@ class Plugin(pwchemPlugin):
         # Clone BEFORE the conda environment (same rule already documented
         # across the rest of this project's plugins).
         #
+        # Not installed from the upstream 'environment.yml' as-is: that
+        # file is a full TRAINING environment (jupyter, wandb, tensorboard,
+        # pytorch-lightning, torcheval, umap-learn, openmm, mmseqs2 --
+        # none of it version-pinned at all), while this protocol only ever
+        # runs 'inference.py'. Its real transitive import chain was traced
+        # file-by-file (inference.py -> src.metoken_model ->
+        # src.design_utils/src.metoken_module, src.datasets.featurizer,
+        # src.constant) AND verified empirically via a real ablation test
+        # (uninstalling each candidate package from the already-working
+        # conda env, one at a time, and re-running 'scipion3 tests'):
+        # scikit-learn/torch-geometric/torchmetrics are confirmed NOT
+        # needed (test still passes without them -- they are only used by
+        # 'model_interface.py'/'data_interface.py', training-only files
+        # never imported here) and dropped; h5py MUST stay even though no
+        # file on the real import path touches it directly --
+        # 'src/datasets/__init__.py' pulls in 'ptm_dataset.py' (which does
+        # 'import h5py') as a real transitive side effect of Python's own
+        # package-import mechanism the moment
+        # 'from src.datasets.featurizer import featurize' runs, confirmed
+        # by a real ModuleNotFoundError traceback when it was removed.
+        #
         # CPU-only torch + nvidia/triton purge (same real fix already
         # applied in scipion-chem-stackglyembed/scipion-chem-emngly).
         # torch_scatter has NO prebuilt wheel for this combination
@@ -79,8 +102,7 @@ class Plugin(pwchemPlugin):
         ).addCommand(
             f"{cls.getEnvActivationCommand(METOKEN_DIC)} && "
             "pip install --index-url https://download.pytorch.org/whl/cpu torch && "
-            "pip install numpy pandas scikit-learn biopython omegaconf transformers "
-            "torch-geometric torchmetrics h5py && "
+            "pip install numpy pandas biopython omegaconf transformers h5py && "
             "pip install --no-build-isolation torch_scatter && "
             "pip uninstall -y cuda-bindings cuda-pathfinder cuda-toolkit nvidia-cublas "
             "nvidia-cuda-cupti nvidia-cuda-nvrtc nvidia-cuda-runtime nvidia-cudnn-cu13 "

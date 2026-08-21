@@ -2,6 +2,16 @@
 CHANGES
 =========
 
+0.3.0
+=====
+- Install list trimmed to what ``inference.py``'s real transitive import
+  chain needs (verified via a real ablation test): dropped
+  scikit-learn/torch-geometric/torchmetrics (training-only, confirmed
+  unused), kept h5py (transitively required via
+  ``src/datasets/__init__.py``, missed by a naive per-file import trace).
+  Removed unused ``READ_URL`` constant. Test file split into per-behavior
+  methods instead of one ``setUpClass`` blob.
+
 0.2.0
 =====
 - Real protocol (``ProtMeTokenCorroboration``): corroborates the type of
